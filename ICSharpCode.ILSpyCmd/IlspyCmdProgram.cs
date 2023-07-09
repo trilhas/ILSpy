@@ -7,6 +7,7 @@ using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
+using System.Text;
 using System.Threading;
 
 using ICSharpCode.Decompiler;
@@ -203,14 +204,19 @@ Examples:
 				}
 				else
 				{
+					string TypeNameDecoded = TypeName != null ? UTF8Encoding.UTF8.GetString(Convert.FromBase64String(TypeName)) : null;
+
 					if (outputDirectory != null)
 					{
+						
 						string outputName = Path.GetFileNameWithoutExtension(fileName);
+						var filenameOutput = (string.IsNullOrEmpty(TypeNameDecoded) ? outputName : TypeNameDecoded);
+						
 						output = File.CreateText(Path.Combine(outputDirectory,
-							(string.IsNullOrEmpty(TypeName) ? outputName : TypeName) + ".decompiled.cs"));
+							Convert.ToBase64String(UTF8Encoding.UTF8.GetBytes(filenameOutput)) + ".decompiled.cs"));
 					}
 
-					return Decompile(fileName, output, TypeName);
+					return Decompile(fileName, output, TypeNameDecoded);
 				}
 			}
 		}
